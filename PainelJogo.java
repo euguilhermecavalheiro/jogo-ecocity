@@ -21,6 +21,25 @@ public class PainelJogo extends JPanel implements ActionListener {
     // timer para atualizar o jogo
     Timer timer;
 
+    int [][] mapa = {
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,1,1,1,0,1,1,1,1,1,1,0,1,1,1,0,1,0,1},
+    {1,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1,0,1,0,1},
+    {1,0,1,0,1,1,1,0,1,1,0,1,1,1,0,1,0,1,0,1},
+    {1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1},
+    {1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1},
+    {1,0,1,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1},
+    {1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,1},
+    {1,0,1,1,0,1,1,1,0,1,1,1,0,1,0,1,1,1,0,1},
+    {1,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
+    {1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1,1,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+};
+    
+
     // construtor da tela do jogo
     public PainelJogo() {
         setPreferredSize(new Dimension(colunas * tamanho_tela, fileiras * tamanho_tela));
@@ -54,6 +73,16 @@ public class PainelJogo extends JPanel implements ActionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        for (int row = 0; row < fileiras; row++) {
+    for (int col = 0; col < colunas; col++) {
+
+        if (mapa[row][col] == 1) {
+            g.setColor(Color.darkGray);
+            g.fillRect(col * tamanho_tela, row * tamanho_tela, tamanho_tela, tamanho_tela);
+        }
+    }
+}
 
         // jogador
         g.setColor(Color.green);
