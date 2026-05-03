@@ -11,8 +11,9 @@ public class PainelJogo extends JPanel implements ActionListener {
     final int fileiras = 15;
 
     // posição e velocidade do jogador
-    int playerX = 100;
-    int playerY = 100;
+    int tamanho_player = 40;
+    int playerX = 300;
+    int playerY = 300;
     int velocidade = 10;
 
     // controle de teclas
@@ -63,12 +64,43 @@ public class PainelJogo extends JPanel implements ActionListener {
 
     // atualiza logica da movimentação do jogador
     public void update() {
-        if (w) playerY -= velocidade;
-        if (a) playerX -= velocidade;
-        if (s) playerY += velocidade;
-        if (d) playerX += velocidade;
+
+    int nextX = playerX;
+    int nextY = playerY;
+
+    if (w) nextY -= velocidade;
+    if (s) nextY += velocidade;
+    if (a) nextX -= velocidade;
+    if (d) nextX += velocidade;
+
+    // movimento vertical separado
+    if (!colidindo(playerX, nextY)) {
+        playerY = nextY;
     }
 
+    // movimento horizontal separado
+    if (!colidindo(nextX, playerY)) {
+        playerX = nextX;
+        }
+ }
+
+    // verifica colisão com paredes
+    public boolean colidindo(int x, int y) {
+
+    int margem = 5;
+
+    int colunaEsquerda = (x + margem) / tamanho_tela;
+    int colunaDireita = (x + tamanho_player - margem - 1) / tamanho_tela;
+    int linhaTopo = (y + margem) / tamanho_tela;
+    int linhaBase = (y + tamanho_player - margem - 1) / tamanho_tela;
+
+    if (mapa[linhaTopo][colunaEsquerda] == 1) return true;
+    if (mapa[linhaTopo][colunaDireita] == 1) return true;
+    if (mapa[linhaBase][colunaEsquerda] == 1) return true;
+    if (mapa[linhaBase][colunaDireita] == 1) return true;
+
+    return false;
+}
     // renderiza o jogo
     @Override
     protected void paintComponent(Graphics g) {
@@ -86,7 +118,7 @@ public class PainelJogo extends JPanel implements ActionListener {
 
         // jogador
         g.setColor(Color.green);
-        g.fillRect(playerX, playerY, tamanho_tela, tamanho_tela);
+        g.fillRect(playerX, playerY, tamanho_player, tamanho_player);
 
         // HUD
         g.setColor(Color.white);
