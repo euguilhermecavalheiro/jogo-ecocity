@@ -41,25 +41,31 @@ public class PainelJogo extends JPanel implements ActionListener {
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
     };
 
-    // variáveis para o lixo
-    int lixoX, lixoY;
+    // posição do lixo
+    int lixoX;
+    int lixoY;
+    int tamanho_lixo = 60;
 
     // controle do lixo
     boolean lixoAtivo = false;
     boolean carregandoLixo = false;
 
+    // posição da lixeira
     int lixeiraX;
     int lixeiraY;
-
-    int pontuacao = 0;
     
+    int pontuacao = 0;
+
+    int tempoRestante = 60;
+    boolean jogoEncerrado = false;   
+    Timer cronometro;
+
     // construtor da tela do jogo
     public PainelJogo() {
         setPreferredSize(new Dimension(colunas * tamanho_tela, linhas * tamanho_tela));
         setBackground(Color.gray);
         setFocusable(true);
 
-        // adiciona o listener de teclado
         addKeyListener(new KeyHandler());
 
         gerarLixo();
@@ -70,6 +76,62 @@ public class PainelJogo extends JPanel implements ActionListener {
         // inicia o timer para atualizar o jogo (16ms = 60 FPS)
         timer = new Timer(16, this);
         timer.start();
+
+        cronometro = new Timer(1000, e -> {
+            if(!jogoEncerrado) {
+                tempoRestante--;
+                if(tempoRestante <= 0) {
+                    jogoEncerrado = true;
+                    repaint();
+                    timer.stop();
+                    cronometro.stop();}
+            }
+        });
+        cronometro.start();
+    }
+// renderiza o jogo
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        for (int row = 0; row < linhas; row++) {
+            for (int col = 0; col < colunas; col++) {
+                if (mapa[row][col] == 1) {
+                    g.setColor(Color.darkGray);
+                    g.fillRect(col * tamanho_tela, row * tamanho_tela, tamanho_tela, tamanho_tela);
+                }
+            }
+        }
+
+        // jogador
+        g.setColor(Color.green);
+        g.fillRect(playerX, playerY, tamanho_player, tamanho_player);
+
+        // HUD
+        g.setColor(Color.white);
+        g.drawString("Pontuação: " + pontuacao, 10, 20);
+        g.drawString("Tempo: " + tempoRestante, 10, 40);
+
+        // lixo
+        if (lixoAtivo) {
+            g.setColor(Color.yellow);
+            g.fillRect(lixoX, lixoY, tamanho_lixo, tamanho_lixo);
+        }
+
+        // lixeira
+        g.setColor(Color.blue);
+        g.fillRect(lixeiraX, lixeiraY, tamanho_tela, tamanho_tela);
+
+        if (jogoEncerrado) {
+            g.setColor(new Color(0, 0, 0, 180));
+            g.fillRect(0, 0, getWidth(), getHeight());
+
+            g.setColor(Color.white);
+            g.setFont(new Font("Arial", Font.BOLD, 40));
+            g.drawString("Tempo Esgotado!", getWidth() / 2 - 160, getHeight() / 2);
+            g.setFont(new Font("Arial", Font.PLAIN, 30));
+            g.drawString("Pontuação: " + pontuacao, getWidth() / 2 - 110, getHeight() / 2 + 50);
+        }
     }
 
     // atualiza o jogo a cada tick do timer
@@ -124,39 +186,6 @@ public class PainelJogo extends JPanel implements ActionListener {
         return false;
     }
     
-    // renderiza o jogo
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        for (int row = 0; row < linhas; row++) {
-            for (int col = 0; col < colunas; col++) {
-                if (mapa[row][col] == 1) {
-                    g.setColor(Color.darkGray);
-                    g.fillRect(col * tamanho_tela, row * tamanho_tela, tamanho_tela, tamanho_tela);
-                }
-            }
-        }
-
-        // jogador
-        g.setColor(Color.green);
-        g.fillRect(playerX, playerY, tamanho_player, tamanho_player);
-
-        // HUD
-        g.setColor(Color.white);
-        g.drawString("Pontuação: " + pontuacao, 10, 20);
-        g.drawString("Tempo: 60", 10, 40);
-
-        if (lixoAtivo) {
-            g.setColor(Color.yellow);
-            g.fillRect(lixoX, lixoY, tamanho_tela, tamanho_tela);
-        }
-
-        // lixeira
-        g.setColor(Color.blue);
-        g.fillRect(lixeiraX, lixeiraY, tamanho_tela, tamanho_tela);
-    }
-
     // controla as teclas pressionadas
     class KeyHandler extends KeyAdapter {
 
@@ -189,7 +218,7 @@ public class PainelJogo extends JPanel implements ActionListener {
         do {
             col = random.nextInt(colunas);
             row = random.nextInt(linhas);
-        } while (mapa[row][col] != 0); // garante que o lixo seja gerado em um espaço vazio
+        } while (mapa[row][col] != 0); // garante que o lixo seja gerado na estrada
 
         lixoX = col * tamanho_tela;
         lixoY = row * tamanho_tela;
@@ -210,6 +239,7 @@ public class PainelJogo extends JPanel implements ActionListener {
         }
     }
 
+    // verifica se o jogador entregou o lixo na lixeira
     public void verificarEntrega() {
         if (!carregandoLixo) return;
             
