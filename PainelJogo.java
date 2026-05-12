@@ -47,6 +47,11 @@ public class PainelJogo extends JPanel implements ActionListener {
     // controle do lixo
     boolean lixoAtivo = false;
     boolean carregandoLixo = false;
+
+    int lixeiraX;
+    int lixeiraY;
+
+    int pontuacao = 0;
     
     // construtor da tela do jogo
     public PainelJogo() {
@@ -57,8 +62,10 @@ public class PainelJogo extends JPanel implements ActionListener {
         // adiciona o listener de teclado
         addKeyListener(new KeyHandler());
 
-        // gera o lixo inicial
         gerarLixo();
+
+        lixeiraX = 9*tamanho_tela;
+        lixeiraY = 7*tamanho_tela;
 
         // inicia o timer para atualizar o jogo (16ms = 60 FPS)
         timer = new Timer(16, this);
@@ -74,7 +81,6 @@ public class PainelJogo extends JPanel implements ActionListener {
 
     // atualiza logica da movimentação do jogador
     public void update() {
-
         int nextX = playerX;
         int nextY = playerY;
 
@@ -93,8 +99,8 @@ public class PainelJogo extends JPanel implements ActionListener {
             playerX = nextX;
         }
 
-        // verifica coleta de lixo
         verificarColeta();
+        verificarEntrega();
 
         // gera novo lixo se necessário
         if (!lixoAtivo && !carregandoLixo) {
@@ -104,20 +110,18 @@ public class PainelJogo extends JPanel implements ActionListener {
 
     // verifica colisão com paredes
     public boolean colidindo(int x, int y) {
+        int margem = 5;
+        int colunaEsquerda = (x + margem) / tamanho_tela;
+        int colunaDireita = (x + tamanho_player - margem - 1) / tamanho_tela;
+        int linhaTopo = (y + margem) / tamanho_tela;
+        int linhaBase = (y + tamanho_player - margem - 1) / tamanho_tela;
 
-    int margem = 5;
+        if (mapa[linhaTopo][colunaEsquerda] == 1) return true;
+        if (mapa[linhaTopo][colunaDireita] == 1) return true;
+        if (mapa[linhaBase][colunaEsquerda] == 1) return true;
+        if (mapa[linhaBase][colunaDireita] == 1) return true;
 
-    int colunaEsquerda = (x + margem) / tamanho_tela;
-    int colunaDireita = (x + tamanho_player - margem - 1) / tamanho_tela;
-    int linhaTopo = (y + margem) / tamanho_tela;
-    int linhaBase = (y + tamanho_player - margem - 1) / tamanho_tela;
-
-    if (mapa[linhaTopo][colunaEsquerda] == 1) return true;
-    if (mapa[linhaTopo][colunaDireita] == 1) return true;
-    if (mapa[linhaBase][colunaEsquerda] == 1) return true;
-    if (mapa[linhaBase][colunaDireita] == 1) return true;
-
-    return false;
+        return false;
     }
     
     // renderiza o jogo
@@ -140,13 +144,17 @@ public class PainelJogo extends JPanel implements ActionListener {
 
         // HUD
         g.setColor(Color.white);
-        g.drawString("Pontuação: 0", 10, 20);
+        g.drawString("Pontuação: " + pontuacao, 10, 20);
         g.drawString("Tempo: 60", 10, 40);
 
         if (lixoAtivo) {
             g.setColor(Color.yellow);
             g.fillRect(lixoX, lixoY, tamanho_tela, tamanho_tela);
         }
+
+        // lixeira
+        g.setColor(Color.blue);
+        g.fillRect(lixeiraX, lixeiraY, tamanho_tela, tamanho_tela);
     }
 
     // controla as teclas pressionadas
@@ -177,7 +185,6 @@ public class PainelJogo extends JPanel implements ActionListener {
     Random random = new Random();
 
     public void gerarLixo() {
-
         int col, row;
         do {
             col = random.nextInt(colunas);
@@ -190,6 +197,7 @@ public class PainelJogo extends JPanel implements ActionListener {
         lixoAtivo = true;
     }
 
+    // verifica se o jogador coletou o lixo
     public void verificarColeta() {
         if (!lixoAtivo || carregandoLixo) return;
 
@@ -199,6 +207,19 @@ public class PainelJogo extends JPanel implements ActionListener {
         if (player.intersects(lixo)) {
             carregandoLixo = true;
             lixoAtivo = false;
+        }
+    }
+
+    public void verificarEntrega() {
+        if (!carregandoLixo) return;
+            
+        Rectangle player = new Rectangle(playerX, playerY, tamanho_player, tamanho_player);
+        Rectangle lixeira = new Rectangle(lixeiraX, lixeiraY, tamanho_tela, tamanho_tela);
+
+        if (player.intersects(lixeira)) {
+            carregandoLixo = false;
+            pontuacao += 100;
+            gerarLixo();
         }
     }
 }
