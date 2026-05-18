@@ -13,8 +13,8 @@ public class PainelJogo extends JPanel implements ActionListener {
 
     // posição e velocidade do jogador
     int tamanho_player = 40;
-    int playerX = 300;
-    int playerY = 300;
+    int playerX = 550;
+    int playerY = 490;
     int velocidade = 10;
 
     // controle de teclas
@@ -25,19 +25,19 @@ public class PainelJogo extends JPanel implements ActionListener {
 
     int [][] mapa = {
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,1,1,1,0,1,1,1,1,1,1,0,1,1,1,0,1,0,1},
-    {1,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1,0,1,0,1},
-    {1,0,1,0,1,1,1,0,1,1,0,1,1,1,0,1,0,1,0,1},
-    {1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1},
-    {1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1},
-    {1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1},
-    {1,0,1,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1},
-    {1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,1},
-    {1,0,1,1,0,1,1,1,0,1,1,1,0,1,0,1,1,1,0,1},
-    {1,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
-    {1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1,1,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1},
+    {1,0,1,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,1},
+    {1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1},
+    {1,0,0,0,0,1,0,1,0,1,0,1,0,1,1,1,0,1,1,1},
+    {1,0,1,1,1,1,0,1,0,1,0,1,0,1,0,0,0,0,0,1},
+    {1,0,0,0,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,1},
+    {1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,0,1},
+    {1,0,0,0,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,1},
+    {1,0,1,0,1,1,0,1,0,1,1,1,0,1,0,0,0,0,0,1},
+    {1,0,1,0,0,1,0,1,0,0,0,1,0,1,1,1,1,1,0,1},
+    {1,0,1,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,1},
+    {1,0,1,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,1,1},
+    {1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1},
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
     };
 
@@ -55,10 +55,11 @@ public class PainelJogo extends JPanel implements ActionListener {
     int lixeiraY;
     
     int pontuacao = 0;
-
     int tempoRestante = 60;
     boolean jogoEncerrado = false;   
     Timer cronometro;
+
+    boolean telaInicial = true;
 
     // construtor da tela do jogo
     public PainelJogo() {
@@ -73,10 +74,10 @@ public class PainelJogo extends JPanel implements ActionListener {
         lixeiraX = 9*tamanho_tela;
         lixeiraY = 7*tamanho_tela;
 
-        // inicia o timer para atualizar o jogo (16ms = 60 FPS)
+        // timer para atualizar o jogo (16ms = 60 FPS)
         timer = new Timer(16, this);
-        timer.start();
 
+        // timer para o cronometro do jogo (1000ms = 1 segundo)
         cronometro = new Timer(1000, e -> {
             if(!jogoEncerrado) {
                 tempoRestante--;
@@ -86,10 +87,10 @@ public class PainelJogo extends JPanel implements ActionListener {
                     timer.stop();
                     cronometro.stop();}
             }
-        });
-        cronometro.start();
+        });  
     }
-// renderiza o jogo
+
+    // renderiza o jogo
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -122,15 +123,31 @@ public class PainelJogo extends JPanel implements ActionListener {
         g.setColor(Color.blue);
         g.fillRect(lixeiraX, lixeiraY, tamanho_tela, tamanho_tela);
 
+        // tela inicial
+        if (telaInicial) {
+            g.setColor(new Color(0, 0, 0, 180));
+            g.fillRect(0, 0, getWidth(), getHeight());
+
+            g.setColor(Color.white);
+            g.setFont(new Font("Arial", Font.BOLD, 60));
+            g.drawString("EcoCity", getWidth() / 2 - 130, getHeight() / 2 - 40);
+            g.setFont(new Font("Arial", Font.PLAIN, 30));
+            g.drawString("Pressione ENTER para começar", getWidth() / 2 - 220, getHeight() / 2 + 30);
+        }
+
+        // tela de fim de jogo
         if (jogoEncerrado) {
             g.setColor(new Color(0, 0, 0, 180));
             g.fillRect(0, 0, getWidth(), getHeight());
 
             g.setColor(Color.white);
             g.setFont(new Font("Arial", Font.BOLD, 40));
-            g.drawString("Tempo Esgotado!", getWidth() / 2 - 160, getHeight() / 2);
+            g.drawString("Tempo Esgotado!", getWidth() / 2 - 160, getHeight() / 2 - 50);
             g.setFont(new Font("Arial", Font.PLAIN, 30));
-            g.drawString("Pontuação: " + pontuacao, getWidth() / 2 - 110, getHeight() / 2 + 50);
+            g.drawString("Pontuação: " + pontuacao, getWidth() / 2 - 110, getHeight() / 2 + 20);
+
+            g.setFont(new Font("Arial", Font.BOLD, 25));
+            g.drawString("Pressione R para reiniciar", getWidth() / 2 - 150, getHeight() / 2 + 100);
         }
     }
 
@@ -143,6 +160,10 @@ public class PainelJogo extends JPanel implements ActionListener {
 
     // atualiza logica da movimentação do jogador
     public void update() {
+        if (telaInicial || jogoEncerrado) {
+            return;
+        }
+
         int nextX = playerX;
         int nextY = playerY;
 
@@ -188,11 +209,17 @@ public class PainelJogo extends JPanel implements ActionListener {
     
     // controla as teclas pressionadas
     class KeyHandler extends KeyAdapter {
-
+        
         @Override
         public void keyPressed(KeyEvent e) {
             int code = e.getKeyCode();
-
+            
+            if (jogoEncerrado && e.getKeyCode() == KeyEvent.VK_R) {
+                reiniciarJogo();
+            }
+            if (telaInicial && code == KeyEvent.VK_ENTER) {
+                IniciarJogo();
+            }
             if (code == KeyEvent.VK_W) w = true;
             if (code == KeyEvent.VK_A) a = true;
             if (code == KeyEvent.VK_S) s = true;
@@ -210,6 +237,14 @@ public class PainelJogo extends JPanel implements ActionListener {
         }
     }
 
+    // inicia o jogo a partir da tela inicial
+    public void IniciarJogo() {
+        telaInicial = false;
+        timer.start();
+        cronometro.start();
+        requestFocusInWindow();
+    }
+    
     // gera lixo em uma posição aleatória do mapa
     Random random = new Random();
 
@@ -251,5 +286,20 @@ public class PainelJogo extends JPanel implements ActionListener {
             pontuacao += 100;
             gerarLixo();
         }
+    }
+
+    // reinicia o jogo para o estado inicial
+    public void reiniciarJogo() {
+        timer.stop();
+        cronometro.stop();
+        playerX = 550;
+        playerY = 490;
+        pontuacao = 0;
+        tempoRestante = 60;
+        jogoEncerrado = false;
+        gerarLixo();
+        timer.start();
+        cronometro.start();
+        repaint();
     }
 }
